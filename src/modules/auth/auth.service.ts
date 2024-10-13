@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from './schema/auth.schema';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { createApiResponse } from '../utils/response.interface';
 
 @Injectable()
 export class AuthService {
@@ -19,8 +20,8 @@ export class AuthService {
     return await this.userModel.findById(id).exec();
   }
 
-  async register(createuserdto: CreateUserDto): Promise<string> {
-    const { name, email, password, role } = createuserdto;
+  async register(createUserDto: CreateUserDto) {
+    const { name, email, password, role } = createUserDto;
 
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
@@ -36,11 +37,17 @@ export class AuthService {
     });
     await user.save();
 
-    return `User Registered Successfully with role: ${user.role}`;
+    return createApiResponse(
+      'User Registered Successfully',
+      { role: user.role },
+      '201',
+      null,
+    );
   }
 
   async fetch() {
-    return this.userModel.find().exec();
+    const users = await this.userModel.find().exec();
+    return createApiResponse('Users fetched successfully', users, '200', null);
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
@@ -54,27 +61,36 @@ export class AuthService {
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
 
-    return { message: 'Password has been reset successfully' };
+    return createApiResponse(
+      'Password has been reset successfully',
+      {},
+      '200',
+      null,
+    );
   }
 
-  async login(loginuserdto: LoginUserDto) {
-    const { email, password } = loginuserdto;
+  async login(loginUserDto: LoginUserDto) {
+    const { email, password } = loginUserDto;
     const user = await this.userModel.findOne({ email }).exec();
 
     if (!user) {
       throw new UnauthorizedException('No such user exists!');
     }
 
-    const isvalid = await bcrypt.compare(password, user.password);
+    const isValid = await bcrypt.compare(password, user.password);
 
-    if (!isvalid) {
+    if (!isValid) {
       throw new UnauthorizedException('Invalid email/password');
     }
 
     const payload = { email: user.email, name: user.name, role: user.role };
     const token = this.jwtService.sign(payload);
-    console.log(token);
 
-    return { access_token: token };
+    return createApiResponse(
+      'Login Successful',
+      { access_token: token },
+      '200',
+      null,
+    );
   }
 }

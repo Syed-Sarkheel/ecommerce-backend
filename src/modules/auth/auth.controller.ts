@@ -21,22 +21,17 @@ export class AuthController {
   }
 
   @Post('signup')
-  async registeration(@Body() createuserdto: CreateUserDto) {
-    return this.authService.register(createuserdto);
+  async registeration(@Body() createUserDto: CreateUserDto) {
+    return this.authService.register(createUserDto);
   }
 
   @Post('login')
-  async loginUser(@Body() loginuserdto: LoginUserDto) {
-    return this.authService.login(loginuserdto);
+  async loginUser(@Body() loginUserDto: LoginUserDto) {
+    return this.authService.login(loginUserDto);
   }
+
   @Post('reset-password')
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
   }
 }
-
-// {
-//     "email" : "hageye6075@asaud.com",
-//     "name" : "Syed",
-//     "password" : "O3o!*>Ks"
-//   }

@@ -10,6 +10,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { Product, ProductDocument } from './schema/product.schema';
 import { ReviewProductDto } from './dto/review-product.dto';
 import { User, UserDocument } from '../auth/schema/auth.schema';
+import { createApiResponse } from '../utils/response.interface';
 
 @Injectable()
 export class ProductService {
@@ -18,11 +19,11 @@ export class ProductService {
     @InjectModel(User.name) public userModel: Model<UserDocument>,
   ) {}
 
-  //adding a product
+  // Adding a product
   async create(
     createdBy: any,
     createProductDto: CreateProductDto,
-  ): Promise<Product> {
+  ): Promise<object> {
     const { name } = createProductDto;
 
     const existingProduct = await this.productModel.findOne({ name }).exec();
@@ -32,52 +33,76 @@ export class ProductService {
 
     const newProduct = new this.productModel({
       ...createProductDto,
-      createdBy: createdBy,
+      createdBy,
     });
-    return await newProduct.save();
+    const result = await newProduct.save();
+    return createApiResponse(
+      'Product created successfully',
+      result,
+      '201',
+      null,
+    );
   }
 
-  async findAll(): Promise<Product[]> {
-    return this.productModel.find().exec();
+  // Fetch all products
+  async findAll(): Promise<object> {
+    const products = await this.productModel.find().exec();
+    return createApiResponse(
+      'Products retrieved successfully',
+      products,
+      '200',
+      null,
+    );
   }
 
-  //find by prod id
-  async findOne(id: string): Promise<Product> {
+  // Find product by ID
+  async findOne(id: string): Promise<object> {
     const product = await this.productModel.findById(id).exec();
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
-    return product;
+    return createApiResponse(
+      'Product retrieved successfully',
+      product,
+      '200',
+      null,
+    );
   }
 
-  //update prod
+  // Update a product
   async update(
     id: string,
     updateProductDto: UpdateProductDto,
-  ): Promise<Product> {
+  ): Promise<object> {
     const updatedProduct = await this.productModel
       .findByIdAndUpdate(id, updateProductDto, { new: true })
       .exec();
     if (!updatedProduct) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
-    return updatedProduct;
+    return createApiResponse(
+      'Product updated successfully',
+      updatedProduct,
+      '200',
+      null,
+    );
   }
 
-  //delete a prod
-  async delete(id: string): Promise<void> {
+  // Delete a product
+  async delete(id: string): Promise<object> {
     const result = await this.productModel.findByIdAndDelete(id).exec();
     if (!result) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
+    return createApiResponse('Product deleted successfully', {}, '204', null);
   }
 
-  //adding a review (customers only)
+  // Adding a review (customers only)
   async addReview(
     userId: any,
     productId: string,
     reviewProductDto: ReviewProductDto,
-  ) {
+  ): Promise<object> {
     const product = await this.productModel.findById(productId).exec();
     if (!product) {
       throw new NotFoundException(`Product with ID ${productId} not found`);
@@ -94,9 +119,13 @@ export class ProductService {
       rating: reviewProductDto.rating,
     };
 
-    console.log(newReview);
     product.review.push(newReview);
     const addedReview = await product.save();
-    return addedReview;
+    return createApiResponse(
+      'Review added successfully',
+      addedReview,
+      '200',
+      null,
+    );
   }
 }

@@ -31,8 +31,6 @@ export class ProductController {
     @Req() req: IAuthRequest,
     @Body() createProductDto: CreateProductDto,
   ) {
-    console.log(req.user);
-
     const newProduct = await this.productService.create(
       req.user._id,
       createProductDto,
@@ -54,7 +52,7 @@ export class ProductController {
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
-  @Roles(UserRoles.ADMIN) // Only admins can update products
+  @Roles(UserRoles.ADMIN)
   async update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
@@ -64,7 +62,7 @@ export class ProductController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  @Roles(UserRoles.ADMIN) // Only admins can delete products
+  @Roles(UserRoles.ADMIN)
   async delete(@Param('id') id: string) {
     return this.productService.delete(id);
   }
