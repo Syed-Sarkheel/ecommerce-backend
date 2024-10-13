@@ -8,7 +8,6 @@ import { Model } from 'mongoose';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product, ProductDocument } from './schema/product.schema';
-import { Review } from './schema/review.schema';
 
 @Injectable()
 export class ProductService {
