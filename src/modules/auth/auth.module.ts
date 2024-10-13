@@ -19,7 +19,7 @@ import { User, UserSchema } from './schema/auth.schema';
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, RolesGuard],
-  exports: [RolesGuard, JwtModule],
+  exports: [RolesGuard, JwtModule, MongooseModule],
 })
 export class AuthModule {}
 

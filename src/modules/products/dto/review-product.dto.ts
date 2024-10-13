@@ -1,5 +1,4 @@
 import {
-  IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -9,14 +8,6 @@ import {
 } from 'class-validator';
 
 export class ReviewProductDto {
-  @IsNotEmpty()
-  @IsMongoId()
-  productId: string;
-
-  @IsNotEmpty()
-  @IsMongoId()
-  userId: string;
-
   @IsOptional()
   @IsString()
   reviewText: string;

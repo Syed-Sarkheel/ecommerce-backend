@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ProductModule } from './products/products.module';
+import { ProductModule } from './modules/products/products.module';
 import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from './auth/auth.roles.guard';
+import { RolesGuard } from './modules/auth/auth.roles.guard';
 
 @Module({
   imports: [
