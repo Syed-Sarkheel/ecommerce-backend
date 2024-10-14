@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { User } from 'src/modules/auth/schema/auth.schema';
 import { Review } from './review.schema';
+import { Category } from '../enums/category.enums';
 
 export type ProductDocument = Product & Document;
 
@@ -19,8 +20,8 @@ export class Product {
   @Prop({ required: true })
   stock: number;
 
-  @Prop({ required: true })
-  category: string;
+  @Prop({ required: true, enum: Category })
+  category: Category;
 
   @Prop({ default: Date.now })
   createdAt: Date;

@@ -11,6 +11,7 @@ import { Product, ProductDocument } from './schema/product.schema';
 import { ReviewProductDto } from './dto/review-product.dto';
 import { User, UserDocument } from '../auth/schema/auth.schema';
 import { createApiResponse } from '../utils/response.interface';
+import { Category } from './enums/category.enums';
 
 @Injectable()
 export class ProductService {
@@ -66,6 +67,35 @@ export class ProductService {
       product,
       '200',
       null,
+    );
+  }
+
+  // async findByName(name: string): Promise<any> {
+  //   const product = await this.productModel
+  //     .find({ name: { $regex: name, $options: 'i' } })
+  //     .exec();
+  //   console.log(product);
+  //   if (!product) {
+  //     throw new NotFoundException(`Product with name ${name} not found`);
+  //   }
+  //   return createApiResponse(
+  //     'Product retrieved successfully',
+  //     product,
+  //     '200',
+  //     null,
+  //   );
+  // }
+
+  async filterByCategory(category: Category): Promise<object> {
+    const products = await this.productModel
+      .find({ category: category })
+      .exec();
+    if (!products || products.length === 0) {
+      throw new NotFoundException(`No products found in category ${category}`);
+    }
+    return createApiResponse(
+      `Products with the category ${category} fetched sucessfully`,
+      products,
     );
   }
 

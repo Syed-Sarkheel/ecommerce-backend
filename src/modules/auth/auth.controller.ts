@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { JwtAuthGuard } from './jwt.auth.guard';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { IAuthRequest } from 'src/interfaces/IAuthRequest';
 
 @Controller('auth')
 export class AuthController {
@@ -16,8 +17,8 @@ export class AuthController {
 
   @Get('profile')
   @UseGuards(JwtAuthGuard)
-  async getProfile() {
-    return { message: 'This is a protected route' };
+  async getProfile(@Req() req: IAuthRequest) {
+    return this.authService.findById(req.user._id);
   }
 
   @Post('signup')
@@ -31,6 +32,7 @@ export class AuthController {
   }
 
   @Post('reset-password')
+  @UseGuards(JwtAuthGuard)
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
   }

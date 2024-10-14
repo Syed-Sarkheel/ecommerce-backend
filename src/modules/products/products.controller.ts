@@ -8,6 +8,7 @@ import {
   Param,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -18,6 +19,7 @@ import { UserRoles } from 'src/modules/auth/enums/user.roles';
 import { IAuthRequest } from 'src/interfaces/IAuthRequest';
 import { JwtAuthGuard } from 'src/modules/auth/jwt.auth.guard';
 import { ReviewProductDto } from './dto/review-product.dto';
+import { Category } from './enums/category.enums';
 
 @UseGuards(RolesGuard)
 @Controller('products')
@@ -48,6 +50,18 @@ export class ProductController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.productService.findOne(id);
+  }
+
+  // @UseGuards(JwtAuthGuard)
+  // @Get('Search')
+  // async findByName(@Query('name') name: string) {
+  //   return this.productService.findByName(name);
+  // }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('category/:category')
+  async filterByCategory(@Param('category') category: Category) {
+    return this.productService.filterByCategory(category);
   }
 
   @UseGuards(JwtAuthGuard)
