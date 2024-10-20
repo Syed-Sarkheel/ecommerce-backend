@@ -12,12 +12,15 @@ import { ReviewProductDto } from './dto/review-product.dto';
 import { User, UserDocument } from '../auth/schema/auth.schema';
 import { createApiResponse } from '../utils/response.interface';
 import { Category } from './enums/category.enums';
+import { getEnumValues } from '../utils/enums.utils';
+import { Wishlist, WishlistDocument } from '../wishlist/schema/wishlist.schema';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectModel(Product.name) public productModel: Model<ProductDocument>,
     @InjectModel(User.name) public userModel: Model<UserDocument>,
+    @InjectModel(Wishlist.name) public wishListModel: Model<WishlistDocument>,
   ) {}
 
   // Adding a product
@@ -85,6 +88,11 @@ export class ProductService {
   //     null,
   //   );
   // }
+
+  async getCategories(): Promise<object> {
+    const categories = getEnumValues(Category);
+    return createApiResponse('Categories Fetched sucessfully', categories);
+  }
 
   async filterByCategory(category: Category): Promise<object> {
     const products = await this.productModel
@@ -158,4 +166,64 @@ export class ProductService {
       null,
     );
   }
+  async addToWishlist(userId: string, productId: string): Promise<any> {
+    console.log(userId, productId);
+
+    try {
+      // Check if the product exists
+      const product = await this.productModel.findById(productId);
+      if (!product) {
+        throw new NotFoundException('Product not found');
+      }
+
+      // Check if the product is already in the user's wishlist
+      const existingWishlist = await this.wishListModel.findOne({
+        user: userId,
+        product: productId,
+      });
+
+      if (existingWishlist) {
+        throw new ConflictException('Product already in wishlist');
+      }
+
+      // Add the product to the wishlist
+      const wishlist = new this.wishListModel({
+        user: userId,
+        product: productId,
+      });
+
+      // Increment the wishlist count for the product
+      product.wishlistCount = (product.wishlistCount || 0) + 1;
+      await product.save();
+
+      return { message: 'Product added to wishlist', product };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async removeFromWishlist(userId: string, productId: string): Promise<any> {
+    const product = await this.productModel.findById(productId);
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    const wishlist = await this.wishListModel.findOneAndDelete({
+      user: userId,
+      product: productId,
+    });
+    if (!wishlist) {
+      throw new NotFoundException('Product not in wishlist');
+    }
+
+    product.wishlistCount -= 1;
+    await product.save();
+
+    return { message: 'Product removed from wishlist', product };
+  }
+
+  // async getUserWishlist(userId: string): Promise<Product[]> {
+  //   const wishlists = await this.wishListModel.find({ user: userId }).populate('product').exec();
+  //   return wishlists.map(wishlist => wishlist.product);
+  // }
 }

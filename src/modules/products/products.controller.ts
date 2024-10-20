@@ -45,6 +45,11 @@ export class ProductController {
   async findAll() {
     return this.productService.findAll();
   }
+  @UseGuards(JwtAuthGuard)
+  @Get('/category')
+  async getCategories() {
+    return this.productService.getCategories();
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')

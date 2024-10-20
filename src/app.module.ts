@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ProductModule } from './modules/products/products.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './modules/auth/auth.roles.guard';
+import { WishlistModule } from './modules/wishlist/wishlist.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { RolesGuard } from './modules/auth/auth.roles.guard';
     }),
     AuthModule,
     ProductModule,
+    WishlistModule,
   ],
   controllers: [],
   providers: [

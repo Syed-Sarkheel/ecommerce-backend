@@ -31,6 +31,9 @@ export class Product {
 
   @Prop({ type: [Review], default: [] })
   review: Review[];
+
+  @Prop({ default: 0 })
+  wishlistCount: number;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

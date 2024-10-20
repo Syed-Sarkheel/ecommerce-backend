@@ -6,10 +6,14 @@ import { ProductService } from './products.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from '../auth/auth.module';
+import { Wishlist, WishlistSchema } from '../wishlist/schema/wishlist.schema';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
+    MongooseModule.forFeature([
+      { name: Product.name, schema: ProductSchema },
+      { name: Wishlist.name, schema: WishlistSchema },
+    ]),
     AuthModule,
   ],
   controllers: [ProductController],
