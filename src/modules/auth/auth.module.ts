@@ -13,7 +13,7 @@ import { User, UserSchema } from './schema/auth.schema';
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'hardcoded_secret_key', // Use a fallback value for easier debugging
+      secret: process.env.JWT_SECRET || 'hardcoded_secret_key',
       signOptions: { expiresIn: '24h' },
     }),
   ],

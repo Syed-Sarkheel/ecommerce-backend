@@ -167,36 +167,31 @@ export class ProductService {
     );
   }
   async addToWishlist(userId: string, productId: string): Promise<any> {
-    console.log(userId, productId);
-
     try {
-      // Check if the product exists
       const product = await this.productModel.findById(productId);
       if (!product) {
         throw new NotFoundException('Product not found');
       }
 
-      // Check if the product is already in the user's wishlist
       const existingWishlist = await this.wishListModel.findOne({
         user: userId,
         product: productId,
-      });
+      }); // Use `findOne` instead of `find`
 
       if (existingWishlist) {
         throw new ConflictException('Product already in wishlist');
       }
 
-      // Add the product to the wishlist
       const wishlist = new this.wishListModel({
-        user: userId,
-        product: productId,
+        userId: userId,
+        productId: productId,
       });
 
-      // Increment the wishlist count for the product
       product.wishlistCount = (product.wishlistCount || 0) + 1;
-      await product.save();
 
-      return { message: 'Product added to wishlist', product };
+      await Promise.all([product.save(), wishlist.save()]);
+
+      return { message: 'Product added to wishlist', wishlist };
     } catch (error) {
       throw error;
     }
@@ -207,23 +202,27 @@ export class ProductService {
     if (!product) {
       throw new NotFoundException('Product not found');
     }
-
     const wishlist = await this.wishListModel.findOneAndDelete({
-      user: userId,
-      product: productId,
+      userId: userId,
+      productId: productId,
     });
+
     if (!wishlist) {
       throw new NotFoundException('Product not in wishlist');
     }
 
-    product.wishlistCount -= 1;
+    // Ensure wishlistCount doesn't go below 0
+    product.wishlistCount = Math.max((product.wishlistCount || 0) - 1, 0);
     await product.save();
 
     return { message: 'Product removed from wishlist', product };
   }
 
-  // async getUserWishlist(userId: string): Promise<Product[]> {
-  //   const wishlists = await this.wishListModel.find({ user: userId }).populate('product').exec();
-  //   return wishlists.map(wishlist => wishlist.product);
-  // }
+  async getUserWishlist(userId: string): Promise<Product[]> {
+    const wishlists = await this.wishListModel
+      .find({ userId: userId })
+      .populate('productId')
+      .exec();
+    return wishlists.map((wishlist) => wishlist.productId);
+  }
 }
